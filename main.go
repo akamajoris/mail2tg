@@ -21,6 +21,7 @@ type Config struct {
 	Password string `yaml:"password"`
 	BotID    string `yaml:"bot_id"`
 	ChatID   string `yaml:"chat_id"`
+	ThreadID string `yaml:"thread_id"`
 	ImapAddr string `yaml:"imap_addr"`
 }
 
@@ -52,8 +53,9 @@ func init() {
 }
 
 type TgMsg struct {
-	ChatID string `json:"chat_id"`
-	Text   string `json:"text"`
+	ThreadID string `json:"message_thread_id"`
+	ChatID   string `json:"chat_id"`
+	Text     string `json:"text"`
 }
 
 func sendToTg(msg []byte) {
@@ -111,8 +113,9 @@ func fetchAndSend(limit uint32) {
 			lastMessageTime = msg.Envelope.Date
 			os.WriteFile(filename, []byte(fmt.Sprintf("%d", lastMessageTime.Unix())), 0777)
 			msg := TgMsg{
-				ChatID: config.ChatID,
-				Text:   fmt.Sprintf("* %s: %s", from, msg.Envelope.Subject),
+				ThreadID: config.ThreadID,
+				ChatID:   config.ChatID,
+				Text:     fmt.Sprintf("* %s: %s", from, msg.Envelope.Subject),
 			}
 			encoded, _ := json.Marshal(msg)
 			sendToTg(encoded)
